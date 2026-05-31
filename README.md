@@ -18,7 +18,7 @@ npm test
 ## Use
 
 - **Start Session** — begins the timer
-- **Interrupt** — pause working time, start interrupted time (e.g. someone walks up to your desk)
+- **Interruption** — pause working time, start interrupted time (e.g. someone walks up to your desk)
 - **Resume** — end the current interruption
 - **End Session** — stop, save to history
 

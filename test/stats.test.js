@@ -63,5 +63,5 @@ test('formatDuration', () => {
   assert.equal(formatDuration(45 * s), '45s');
   assert.equal(formatDuration(5 * m + 3 * s), '5m 03s');
   assert.equal(formatDuration(2 * 3600 * s + 7 * m + 9 * s), '2h 07m 09s');
-  assert.equal(formatDuration(null), '—');
+  assert.equal(formatDuration(null), '--');
 });

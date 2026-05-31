@@ -29,7 +29,7 @@ function meanTimeBetweenInterruptionsMs(session, now) {
   return gaps.reduce((a, b) => a + b, 0) / gaps.length;
 }
 function formatDuration(ms) {
-  if (ms == null || !isFinite(ms)) return '—';
+  if (ms == null || !isFinite(ms)) return '--';
   const s = Math.floor(ms / 1000);
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
@@ -37,6 +37,18 @@ function formatDuration(ms) {
   if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m ${String(sec).padStart(2, '0')}s`;
   if (m > 0) return `${m}m ${String(sec).padStart(2, '0')}s`;
   return `${sec}s`;
+}
+
+function shortDate(ts) {
+  const d = new Date(ts);
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  const yest = new Date(); yest.setDate(yest.getDate() - 1);
+  const isYest = d.toDateString() === yest.toDateString();
+  const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  if (sameDay) return `Today ${time}`;
+  if (isYest) return `Yest ${time}`;
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + time;
 }
 
 const app = document.getElementById('app');
@@ -59,12 +71,12 @@ function isInterrupted() {
 
 function render() {
   if (!session) {
-    workVal.textContent = '—';
-    intVal.textContent = '—';
-    mtbiVal.textContent = '—';
+    workVal.textContent = '--';
+    intVal.textContent = '--';
+    mtbiVal.textContent = '--';
     countVal.textContent = '0';
     sessionBtn.textContent = 'Start Session';
-    interruptBtn.textContent = 'Interrupt';
+    interruptBtn.textContent = 'Interruption';
     interruptBtn.disabled = true;
     app.classList.remove('running', 'interrupted');
     return;
@@ -81,7 +93,7 @@ function render() {
     interruptBtn.textContent = 'Resume';
     app.classList.add('interrupted');
   } else {
-    interruptBtn.textContent = 'Interrupt';
+    interruptBtn.textContent = 'Interruption';
     app.classList.remove('interrupted');
   }
 }
@@ -125,6 +137,64 @@ interruptBtn.addEventListener('click', () => {
     session.interruptions.push({ startedAt: Date.now(), endedAt: null });
   }
   render();
+});
+
+const historyToggle = document.getElementById('historyToggle');
+const historyPanel = document.getElementById('history');
+const historyList = document.getElementById('historyList');
+const COLLAPSED_H = 180;
+const EXPANDED_H = 380;
+
+async function renderHistory() {
+  let sessions = [];
+  try {
+    sessions = await window.api.readHistory();
+  } catch (e) {
+    console.error('Failed to read history', e);
+  }
+  // newest first
+  sessions = [...sessions].sort((a, b) => (b.startedAt ?? 0) - (a.startedAt ?? 0));
+
+  historyList.innerHTML = '';
+  let totalWork = 0, totalInt = 0, totalCount = 0, gapSum = 0;
+  for (const s of sessions) {
+    const end = s.endedAt ?? s.startedAt;
+    const work = workingMs(s, end);
+    const intr = interruptedMs(s, end);
+    const mtbi = meanTimeBetweenInterruptionsMs(s, end);
+    const count = s.interruptions?.length ?? 0;
+    totalWork += work;
+    totalInt += intr;
+    totalCount += count;
+    if (mtbi != null) gapSum += mtbi * count;
+
+    const row = document.createElement('div');
+    row.className = 'hist-row';
+    row.innerHTML = `
+      <span class="hist-when">${shortDate(s.startedAt)}</span>
+      <span class="hist-work">${formatDuration(work)}</span>
+      <span class="hist-int">${formatDuration(intr)}</span>
+      <span class="hist-mtbi">${formatDuration(mtbi)}</span>
+      <span class="hist-count">${count}</span>
+    `;
+    historyList.appendChild(row);
+  }
+
+  const aggMtbi = totalCount > 0 ? gapSum / totalCount : null;
+  const agg = document.getElementById('historyAgg');
+  agg.querySelector('.hist-when').textContent = `${sessions.length} session${sessions.length === 1 ? '' : 's'}`;
+  agg.querySelector('.hist-work').textContent = formatDuration(totalWork);
+  agg.querySelector('.hist-int').textContent = formatDuration(totalInt);
+  agg.querySelector('.hist-mtbi').textContent = formatDuration(aggMtbi);
+  agg.querySelector('.hist-count').textContent = String(totalCount);
+}
+
+historyToggle.addEventListener('click', async () => {
+  const open = !historyPanel.hidden ? false : true;
+  historyPanel.hidden = !open;
+  historyToggle.classList.toggle('open', open);
+  await window.api.resizeWindow({ height: open ? EXPANDED_H : COLLAPSED_H });
+  if (open) renderHistory();
 });
 
 closeBtn.addEventListener('click', () => {

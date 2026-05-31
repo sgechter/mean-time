@@ -36,12 +36,15 @@ function createWindow() {
     height: 180,
     minWidth: 240,
     minHeight: 150,
+    x: 100,
+    y: 100,
     frame: false,
     transparent: true,
     resizable: true,
     alwaysOnTop: true,
     skipTaskbar: false,
     hasShadow: true,
+    show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -51,6 +54,10 @@ function createWindow() {
   win.setAlwaysOnTop(true, 'floating');
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadFile('index.html');
+  win.once('ready-to-show', () => {
+    win.show();
+    win.focus();
+  });
 }
 
 ipcMain.handle('history:append', (_evt, session) => {
@@ -61,13 +68,25 @@ ipcMain.handle('history:append', (_evt, session) => {
 ipcMain.handle('history:read', () => readHistory());
 
 ipcMain.handle('window:close', () => {
-  BrowserWindow.getAllWindows().forEach((w) => w.close());
+  app.quit();
 });
 
-app.whenReady().then(createWindow);
+ipcMain.handle('window:resize', (evt, { width, height }) => {
+  const win = BrowserWindow.fromWebContents(evt.sender);
+  if (!win) return;
+  const [w, h] = win.getSize();
+  win.setSize(width ?? w, height ?? h, false);
+});
+
+app.setName('mean-time');
+
+app.whenReady().then(() => {
+  if (app.dock) app.dock.show();
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  app.quit();
 });
 
 app.on('activate', () => {

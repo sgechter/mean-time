@@ -9,19 +9,40 @@
     <div id="app" class="idle">
       <div id="titlebar">
         <span id="title">mean-time</span>
-        <button id="close" title="Close">×</button>
+        <div class="tb-buttons">
+          <button id="historyToggle" title="Show history">history</button>
+          <button id="close" title="Close">close</button>
+        </div>
       </div>
 
       <div id="stats">
-        <div class="stat"><span class="label">Work</span><span id="workVal" class="val">—</span></div>
-        <div class="stat"><span class="label">Interrupt</span><span id="intVal" class="val">—</span></div>
-        <div class="stat"><span class="label">MTBI</span><span id="mtbiVal" class="val">—</span></div>
+        <div class="stat"><span class="label">Work</span><span id="workVal" class="val">--</span></div>
+        <div class="stat"><span class="label">Interruption</span><span id="intVal" class="val">--</span></div>
+        <div class="stat"><span class="label">MTBI</span><span id="mtbiVal" class="val">--</span></div>
         <div class="stat"><span class="label">Count</span><span id="countVal" class="val">0</span></div>
       </div>
 
       <div id="controls">
         <button id="sessionBtn">Start Session</button>
-        <button id="interruptBtn" disabled>Interrupt</button>
+        <button id="interruptBtn" disabled>Interruption</button>
+      </div>
+
+      <div id="history" hidden>
+        <div id="historyAgg" class="hist-row hist-agg">
+          <span class="hist-when">All sessions</span>
+          <span class="hist-work">--</span>
+          <span class="hist-int">--</span>
+          <span class="hist-mtbi">--</span>
+          <span class="hist-count">0</span>
+        </div>
+        <div class="hist-row hist-head">
+          <span class="hist-when">When</span>
+          <span class="hist-work">Work</span>
+          <span class="hist-int">Interruption</span>
+          <span class="hist-mtbi">MTBI</span>
+          <span class="hist-count">#</span>
+        </div>
+        <div id="historyList"></div>
       </div>
     </div>
     <script src="renderer.js"></script>
