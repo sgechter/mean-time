@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>mean-time</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="idle">
+      <div id="titlebar">
+        <span id="title">mean-time</span>
+        <button id="close" title="Close">×</button>
+      </div>
+
+      <div id="stats">
+        <div class="stat"><span class="label">Work</span><span id="workVal" class="val">—</span></div>
+        <div class="stat"><span class="label">Interrupt</span><span id="intVal" class="val">—</span></div>
+        <div class="stat"><span class="label">MTBI</span><span id="mtbiVal" class="val">—</span></div>
+        <div class="stat"><span class="label">Count</span><span id="countVal" class="val">0</span></div>
+      </div>
+
+      <div id="controls">
+        <button id="sessionBtn">Start Session</button>
+        <button id="interruptBtn" disabled>Interrupt</button>
+      </div>
+    </div>
+    <script src="renderer.js"></script>
+  </body>
+</html>

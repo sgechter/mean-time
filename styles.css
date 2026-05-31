@@ -1,0 +1,95 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  color: #f0f0f0;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+  overflow: hidden;
+}
+
+#app {
+  background: rgba(28, 28, 30, 0.92);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(20px);
+}
+
+#titlebar {
+  -webkit-app-region: drag;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #999;
+}
+
+#close {
+  -webkit-app-region: no-drag;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+#close:hover { color: #fff; }
+
+#stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  padding: 6px 12px;
+  flex: 1;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+}
+.val {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  font-weight: 500;
+}
+
+#controls {
+  display: flex;
+  gap: 6px;
+  padding: 6px 8px 8px;
+}
+
+#controls button {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 6px 0;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+#controls button:hover:not(:disabled) { background: rgba(255,255,255,0.14); }
+#controls button:disabled { opacity: 0.35; cursor: default; }
+
+/* state-based button styling */
+#app.running #sessionBtn { background: rgba(255, 80, 80, 0.25); border-color: rgba(255,80,80,0.4); }
+#app.interrupted #interruptBtn { background: rgba(80, 200, 120, 0.25); border-color: rgba(80,200,120,0.4); }
+#app.interrupted .val { color: #ffb84d; }
