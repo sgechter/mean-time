@@ -39,6 +39,18 @@ function formatDuration(ms) {
   return `${sec}s`;
 }
 
+// Compact form for the history table: drop seconds once we're into hours.
+function formatDurationCompact(ms) {
+  if (ms == null || !isFinite(ms)) return '--';
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m`;
+  if (m > 0) return `${m}m ${String(sec).padStart(2, '0')}s`;
+  return `${sec}s`;
+}
+
 function shortDate(ts) {
   const d = new Date(ts);
   const today = new Date();
@@ -172,9 +184,9 @@ async function renderHistory() {
     row.className = 'hist-row';
     row.innerHTML = `
       <span class="hist-when">${shortDate(s.startedAt)}</span>
-      <span class="hist-work">${formatDuration(work)}</span>
-      <span class="hist-int">${formatDuration(intr)}</span>
-      <span class="hist-mtbi">${formatDuration(mtbi)}</span>
+      <span class="hist-work">${formatDurationCompact(work)}</span>
+      <span class="hist-int">${formatDurationCompact(intr)}</span>
+      <span class="hist-mtbi">${formatDurationCompact(mtbi)}</span>
       <span class="hist-count">${count}</span>
     `;
     historyList.appendChild(row);
@@ -183,9 +195,9 @@ async function renderHistory() {
   const aggMtbi = totalCount > 0 ? gapSum / totalCount : null;
   const agg = document.getElementById('historyAgg');
   agg.querySelector('.hist-when').textContent = `${sessions.length} session${sessions.length === 1 ? '' : 's'}`;
-  agg.querySelector('.hist-work').textContent = formatDuration(totalWork);
-  agg.querySelector('.hist-int').textContent = formatDuration(totalInt);
-  agg.querySelector('.hist-mtbi').textContent = formatDuration(aggMtbi);
+  agg.querySelector('.hist-work').textContent = formatDurationCompact(totalWork);
+  agg.querySelector('.hist-int').textContent = formatDurationCompact(totalInt);
+  agg.querySelector('.hist-mtbi').textContent = formatDurationCompact(aggMtbi);
   agg.querySelector('.hist-count').textContent = String(totalCount);
 }
 
