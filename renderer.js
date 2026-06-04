@@ -154,6 +154,8 @@ interruptBtn.addEventListener('click', () => {
 const historyToggle = document.getElementById('historyToggle');
 const historyPanel = document.getElementById('history');
 const historyList = document.getElementById('historyList');
+const COLLAPSED_W = 280;
+const EXPANDED_W = 440;
 const COLLAPSED_H = 180;
 const EXPANDED_H = 380;
 
@@ -205,7 +207,10 @@ historyToggle.addEventListener('click', async () => {
   const open = !historyPanel.hidden ? false : true;
   historyPanel.hidden = !open;
   historyToggle.classList.toggle('open', open);
-  await window.api.resizeWindow({ height: open ? EXPANDED_H : COLLAPSED_H });
+  await window.api.resizeWindow({
+    width: open ? EXPANDED_W : COLLAPSED_W,
+    height: open ? EXPANDED_H : COLLAPSED_H,
+  });
   if (open) renderHistory();
 });
 
