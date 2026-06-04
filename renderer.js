@@ -39,6 +39,17 @@ function formatDuration(ms) {
   return `${sec}s`;
 }
 
+// For live stats when "show seconds" is off: drop seconds entirely. Under a
+// minute shows "0m" rather than the live second count.
+function formatDurationNoSecs(ms) {
+  if (ms == null || !isFinite(ms)) return '--';
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m`;
+  return `${m}m`;
+}
+
 // Compact form for the history table: drop seconds once we're into hours.
 function formatDurationCompact(ms) {
   if (ms == null || !isFinite(ms)) return '--';
@@ -61,6 +72,11 @@ function shortDate(ts) {
   if (sameDay) return `Today ${time}`;
   if (isYest) return `Yest ${time}`;
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + time;
+}
+
+let showSeconds = localStorage.getItem('showSeconds') !== 'false'; // default true
+function fmtLive(ms) {
+  return showSeconds ? formatDuration(ms) : formatDurationNoSecs(ms);
 }
 
 const app = document.getElementById('app');
@@ -94,9 +110,9 @@ function render() {
     return;
   }
   const now = Date.now();
-  workVal.textContent = formatDuration(workingMs(session, now));
-  intVal.textContent = formatDuration(interruptedMs(session, now));
-  mtbiVal.textContent = formatDuration(meanTimeBetweenInterruptionsMs(session, now));
+  workVal.textContent = fmtLive(workingMs(session, now));
+  intVal.textContent = fmtLive(interruptedMs(session, now));
+  mtbiVal.textContent = fmtLive(meanTimeBetweenInterruptionsMs(session, now));
   countVal.textContent = String(session.interruptions.length);
   sessionBtn.textContent = 'End Session';
   interruptBtn.disabled = false;
@@ -148,6 +164,18 @@ interruptBtn.addEventListener('click', () => {
   } else {
     session.interruptions.push({ startedAt: Date.now(), endedAt: null });
   }
+  render();
+});
+
+const secsToggle = document.getElementById('secsToggle');
+function applySecsToggleLabel() {
+  secsToggle.textContent = showSeconds ? 'hide secs' : 'show secs';
+}
+applySecsToggleLabel();
+secsToggle.addEventListener('click', () => {
+  showSeconds = !showSeconds;
+  localStorage.setItem('showSeconds', String(showSeconds));
+  applySecsToggleLabel();
   render();
 });
 
